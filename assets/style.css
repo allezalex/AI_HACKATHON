@@ -1,0 +1,92 @@
+body {
+    font-family: "Lato", sans-serif;
+    margin: 62px;
+    background-color: #ffffff;
+    align-content: center;
+}
+
+.header {
+    background-color: #cbfcc8;
+    height: 288px; width:max-content
+    padding: 0px 0 0 0;
+}
+
+.header-emoji {
+    font-size: 48px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.header-title {
+    color: #7ccb78;
+    font-size: 48px;
+    font-weight: bold;
+    text-align: center;
+    margin: 0 auto;
+}
+
+.header-description {
+    color: #8fb48d;
+    margin: 4px auto;
+    text-align: center;
+    max-width: 430px;
+}
+
+.wrapper {
+    margin-right: auto;
+    margin-left: auto;
+    max-width: 1024px;
+    padding-right: 10px;
+    padding-left: 10px;
+    margin-top: 32px;
+}
+
+.card {
+    margin-bottom: 0px;
+    align-content: center;
+  }
+}
+
+.container{
+    align-content:center;
+    text-align: center;
+    max-width: 400px;
+    justify-items: center;
+    display: flex;
+}
+
+.menu {
+    height: 112px;
+    width: 1365px;
+    display: flex;
+    justify-content: space-evenly;
+    align-content: center;
+    padding-top: 24px;
+    margin: -80px auto 0 auto;
+    background-color: #FFFFFF;
+    box-shadow: 0 4px 6px 0 rgba(0, 0, 0, 0.18);
+}
+
+.Select-control {
+    width: 256px;
+    height: 48px;
+}
+
+.Select--single > .Select-control .Select-value, .Select-placeholder {
+    line-height: 48px;
+}
+
+.Select--multi .Select-value-label {
+    line-height: 32px;
+}
+
+.dash-table-container{
+    align-content: center;
+}
+
+.menu-title {
+    margin-bottom: 6px;
+    font-weight: bold;
+    color: #079A82;
+    display: flex;
+}

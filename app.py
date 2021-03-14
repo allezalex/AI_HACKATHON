@@ -5,6 +5,8 @@ import pandas as pd
 import numpy as np
 from dash.dependencies import Output, Input
 import dash_table
+from dash.exceptions import PreventUpdate
+from dash_table.Format import Format, Group
 
 # external_stylesheets = [
 #     {
@@ -19,9 +21,9 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
 app.title = "CO2 Rankings, C the full image!"
 
-data = pd.read_csv("data/LiveData.csv")
+df = pd.read_csv("data/LiveData.csv")
 #data["Year Reported to CDP"] = pd.to_datetime(data["Year Reported to CDP"], format="%Y-%m-%d")
-data.sort_values("Year", inplace=True)
+df.sort_values("Year", inplace=True)
 
 
 app.layout = html.Div(
@@ -35,7 +37,7 @@ app.layout = html.Div(
                 html.P(
                     children="Analyze the CO2 emissions of cities around the world"
                     " and their transparency score"
-                    " between 2016 and 2019",
+                    " between 2016 and 2020",
                     className="header-description",
                 ),
             ],
@@ -45,14 +47,14 @@ app.layout = html.Div(
             children=[
                 html.Div(
                     children=[
-                        html.Div(children="Group", className="menu-title"),
+                        html.Div(children="Country", className="menu-title"),
                         dcc.Dropdown(
-                            id="group-filter",
+                            id="country-filter",
                             options=[
-                                {"label": group_id, "value": group_id}
-                                for group_id in range(1,49)
+                                {"label": country_name, "value": country_name}
+                                for country_name in sorted(df.Country.unique())
                             ],
-                            value= "3",
+                            value= "France",
                             clearable=True,
                             className="dropdown",
                         ),
@@ -65,7 +67,7 @@ app.layout = html.Div(
                             id="city-filter",
                             options=[
                                 {"label": city_name, "value": city_name}
-                                for city_name in data.City.unique()
+                                for city_name in sorted(df.City.unique())
                             ],
                             value="Paris",
                             clearable=True,
@@ -83,13 +85,29 @@ app.layout = html.Div(
                             id="date-range",
                             options=[
                                 {"label": year, "value": year}
-                                for year in data.Year.unique()
+                                for year in df.Year.unique()
                             ],
-                            value="2019",
+                            value=None,
                             clearable=True,
                             className="dropdown",
                         ),
                     ]
+                ),
+                html.Div(
+                    children=[
+                        html.Div(children="Group", className="menu-title"),
+                        dcc.Dropdown(
+                            id="CityGroup-filter",
+                            options=[
+                                {"label": CityGroup, "value": CityGroup}
+                                for CityGroup in range(1,49)
+                            ],
+                            value= "22",
+                            clearable=True,
+                            searchable=True,
+                            className="dropdown",
+                        ),
+                    ],
                 ),
             ],
             className="menu",
@@ -99,28 +117,29 @@ app.layout = html.Div(
                 dash_table.DataTable(
                     id='table',
                     columns=[
-                    {'name': 'ID', 'id': 'ID'},
-                    {'name': 'City', 'id': 'City'},
-                    {'name': 'Country', 'id': 'Country'},
-                    {'name': 'Total CO2 Emissions (Metric T)', 'id': 'Total CO2 Emissions (Metric T)'},
-                    {'name': 'Year', 'id': 'Year'},
-                    {'name': 'Transparency Score', 'id': 'Transparency Score'},
-                    {'name': 'Group', 'id': 'Group'}],
-                    data=data.to_dict('records'),
-                    filter_action='native',
-                    style_table={'width': '800px'},
+                    #{'name': 'ID', 'id': 'ID'},
+                    dict(name= 'Country', id= 'Country'),
+                    dict(name= 'City', id= 'City'),
+                    dict(name= 'Total CO2 Emissions (Metric T)', id= 'Total CO2 Emissions (Metric T)', type='numeric', format=Format().group(True)),
+                    dict(name= 'Year', id= 'Year'),
+                    dict(name= 'Transparency Score', id= 'Transparency Score'),
+                    dict(name= 'Group', id= 'Group')],
+                    data=df.to_dict('records'),
+                    #filter_action='native',
+                    #style_table={'width': '800px'},
                     style_cell={
-                        'textAlign': 'right'
-                        'font-size=24px'},
+                        'textAlign': 'right',
+                        'font-size':15,
+                        'font-family':'sans-serif'},
                     style_header={
                         'fontWeight':'bold'},
                     style_data={
-                        'width': '300px', 'minWidth': '257px', 'maxWidth': '300px',
+                        #'width': '300px', 'minWidth': '257px', 'maxWidth': '300px',
                         'overflow': 'hidden',
                         'textOverflow': 'ellipsis',
                         },
                     style_as_list_view=True,    
-                    page_size=10,
+                    page_size=20,
                     ),
             className ="container"
             # html.Div(
@@ -159,22 +178,97 @@ app.layout = html.Div(
 
 
 
-# @app.callback(
-#     #Output("table", "value"), 
-#     #Output("GDP_chart_figure", "figure"),
-#     Input("group-filter", "value"),
-#     Input("city-filter", "value"),
-#     Input("date-range", "value")
-# )
+@app.callback(
+    Output("table", "data"), 
+    #Output("GDP_chart_figure", "figure"),
+    Input("country-filter", "value"),
+    Input("city-filter", "value"),
+    Input("CityGroup-filter", "value"),
+    Input("date-range", "value")
+)
 
-# def update_charts(group_id, city_name, year):
-#     mask = (
-#         (data.Group == group_id)
-#         & (data.City == city_name)
-#         & (data.Year == year)
+def filter_table(country,city, group, year):
+    if group is None:
+        if country is None:
+            if city is None:
+                if year is not None:
+                    filtered_df = df[(df['Year']== int(year))]
+                    return filtered_df.to_dict('rows')
+                elif year is None:
+                    filtered_df = df
+                    return filtered_df.to_dict('rows')
+            elif city is not None:
+                if year is not None:
+                    filtered_df = df[(df['City']== str(city)) & (df['Year']== int(year))]
+                    return filtered_df.to_dict('rows')
+                elif year is None:
+                    filtered_df = df[(df['City']== str(city))]
+                    return filtered_df.to_dict('rows')      
 
-#     )
-    #filtered_data = data.loc[mask, :]
+        if country is not None:
+            if city is None:
+                if year is not None:
+                    filtered_df = df[(df['Country']== str(country)) & (df['Year']== int(year))]
+                    return filtered_df.to_dict('rows')
+                elif year is None:
+                    filtered_df = df[df['Country']== str(country)]
+                    return filtered_df.to_dict('rows')
+            elif city is not None:
+                if year is not None:
+                    filtered_df = df[(df['Country']== str(country)) & (df['City']== str(city)) & (df['Year']== int(year))]
+                    return filtered_df.to_dict('rows')
+                elif year is None:
+                    filtered_df = df[(df['Country']== str(country)) & (df['City']== str(city))]
+                    return filtered_df.to_dict('rows')     
+    if group is not None:
+        if country is None:
+            if city is None:
+                if year is not None:
+                    filtered_df = df[(df['Year']== int(year)) & (df['Group']== int(group))]
+                    return filtered_df.to_dict('rows')
+                elif year is None:
+                    filtered_df = df[(df['Group']== int(group))]
+                    return filtered_df.to_dict('rows')
+            elif city is not None:
+                if year is not None:
+                    filtered_df = df[(df['City']== str(city)) & (df['Year']== int(year)) & (df['Group']== int(group))]
+                    return filtered_df.to_dict('rows')
+                elif year is None:
+                    filtered_df = df[(df['City']== str(city)) & (df['Group']== int(group))]
+                    return filtered_df.to_dict('rows')      
+
+        if country is not None:
+            if city is None:
+                if year is not None:
+                    filtered_df = df[(df['Country']== str(country)) & (df['Year']== int(year)) & (df['Group']== int(group))]
+                    return filtered_df.to_dict('rows')
+                elif year is None:
+                    filtered_df = df[df['Country']== str(country) & (df['Group']== int(group))]
+                    return filtered_df.to_dict('rows')
+            elif city is not None:
+                if year is not None:
+                    filtered_df = df[(df['Country']== str(country)) & (df['City']== str(city)) & (df['Year']== int(year)) & (df['Group']== int(group))]
+                    return filtered_df.to_dict('rows')
+                elif year is None:
+                    filtered_df = df[(df['Country']== str(country)) & (df['City']== str(city)) & (df['Group']== int(group))]
+                    return filtered_df.to_dict('rows') 
+
+    # elif city != "$0" or year !="$0":
+    #     filtered_df = df[(df['City']== city) & (df['Year']== year)]
+    #     return filtered_df.to_dict('rows')
+    # elif string and get_str_dtype(sample_df, col) == 'object':
+    #     df = sample_df[sample_df[col].str.contains(string, case=False)]
+    #     return df.to_dict('rows')
+    # elif (bool_filter is not None) and (get_str_dtype(sample_df, col) == 'bool'):
+    #     bool_filter = True if bool_filter == 'True' else False
+    #     df = sample_df[sample_df[col] == bool_filter]
+    #     return df.to_dict('rows')
+    # elif start_date and end_date and (get_str_dtype(sample_df, col) == 'datetime'):
+    #     df = sample_df[sample_df[col].between(start_date, end_date)]
+    #     return df.to_dict('rows')
+    # else:
+    #     return sample_df.to_dict('rows')
+
     # population_chart_figure = {
     #     "data": [
     #         {
@@ -214,4 +308,4 @@ app.layout = html.Div(
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server(debug=True,host="127.0.0.1", port=8050)
