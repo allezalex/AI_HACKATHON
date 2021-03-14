@@ -8,21 +8,12 @@ import dash_table
 from dash.exceptions import PreventUpdate
 from dash_table.Format import Format, Group
 
-# external_stylesheets = [
-#     {
-#         "href": "https://fonts.googleapis.com/css2?"
-#         "family=Lato:wght@400;700&display=swap",
-#         "rel": "stylesheet",
-#     },
-# ]
-
 external_stylesheets = ['assets/style.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
 app.title = "CO2 Rankings, C the full image!"
 
 df = pd.read_csv("data/LiveData.csv")
-#data["Year Reported to CDP"] = pd.to_datetime(data["Year Reported to CDP"], format="%Y-%m-%d")
 df.sort_values("Year", inplace=True)
 
 
@@ -142,36 +133,6 @@ app.layout = html.Div(
                     page_size=20,
                     ),
             className ="container"
-            # html.Div(
-            #         dcc.Graph(
-            #         id="CO2-chart",
-            #         config={"displayModeBar": False},
-            #         figure={
-            #             "data": [
-            #                 {
-            #                     "x": data["Group"],
-            #                     "y": data["Total CO2 Emissions (Metric T)"],
-            #                     "type": "lines",
-            #                     "hovertemplate": "$%{y:.2f}"
-            #                                         "<extra></extra>",
-            #                 },
-            #             ],
-            #             "layout": {
-            #                 "title": {
-            #                     "text": "Average Price of Avocados",
-            #                     "x": 0.05,
-            #                     "xanchor": "left",
-            #                 },
-            #                 "xaxis": {"fixedrange": True},
-            #                 "yaxis": {
-            #                     "tickprefix": "$",
-            #                     "fixedrange": True,
-            #                 },
-            #                 "colorway": ["#17B897"],
-            #             },
-            #         },
-            #     ),
-            # ),
         ),
     ]
 )
@@ -252,60 +213,6 @@ def filter_table(country,city, group, year):
                 elif year is None:
                     filtered_df = df[(df['Country']== str(country)) & (df['City']== str(city)) & (df['Group']== int(group))]
                     return filtered_df.to_dict('rows') 
-
-    # elif city != "$0" or year !="$0":
-    #     filtered_df = df[(df['City']== city) & (df['Year']== year)]
-    #     return filtered_df.to_dict('rows')
-    # elif string and get_str_dtype(sample_df, col) == 'object':
-    #     df = sample_df[sample_df[col].str.contains(string, case=False)]
-    #     return df.to_dict('rows')
-    # elif (bool_filter is not None) and (get_str_dtype(sample_df, col) == 'bool'):
-    #     bool_filter = True if bool_filter == 'True' else False
-    #     df = sample_df[sample_df[col] == bool_filter]
-    #     return df.to_dict('rows')
-    # elif start_date and end_date and (get_str_dtype(sample_df, col) == 'datetime'):
-    #     df = sample_df[sample_df[col].between(start_date, end_date)]
-    #     return df.to_dict('rows')
-    # else:
-    #     return sample_df.to_dict('rows')
-
-    # population_chart_figure = {
-    #     "data": [
-    #         {
-    #             "x": filtered_data["Year"],
-    #             "y": filtered_data["Population"],
-    #             "type": "lines",
-    #             "hovertemplate": "$%{y:.2f}<extra></extra>",
-    #         },
-    #     ],
-    #     "layout": {
-    #         "title": {
-    #             "text": "Average Population",
-    #             "x": 0.05,
-    #             "xanchor": "left",
-    #         },
-    #         "xaxis": {"fixedrange": True},
-    #         "yaxis": {"tickprefix": "$", "fixedrange": True},
-    #         "colorway": ["#17B897"],
-    #     },
-    # }
-    # GDP_chart_figure = {
-    #     "data": [
-    #         {
-    #             "x": filtered_data["Year"],
-    #             "y": filtered_data["GDP (Country)"],
-    #             "type": "lines",
-    #         },
-    #     ],
-    #     "layout": {
-    #         "title": {"text": "Average Country GDP", "x": 0.05, "xanchor": "left"},
-    #         "xaxis": {"fixedrange": True},
-    #         "yaxis": {"fixedrange": True},
-    #         "colorway": ["#E12D39"],
-    #     },
-    # }
-    # return population_chart_figure, GDP_chart_figure
-
 
 if __name__ == "__main__":
     app.run_server(debug=True,host="127.0.0.1", port=8050)
