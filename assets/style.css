@@ -74,6 +74,7 @@ body {
 
 .Select--single > .Select-control .Select-value, .Select-placeholder {
     line-height: 48px;
+    width: 256px;
 }
 
 .Select--multi .Select-value-label {
