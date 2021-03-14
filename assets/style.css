@@ -7,7 +7,8 @@ body {
 
 .header {
     background-color: #cbfcc8;
-    height: 288px; width:max-content
+    height: 288px; 
+    width:max-content;
     padding: 0px 0 0 0;
 }
 
@@ -44,7 +45,6 @@ body {
 .card {
     margin-bottom: 0px;
     align-content: center;
-  }
 }
 
 .container{
