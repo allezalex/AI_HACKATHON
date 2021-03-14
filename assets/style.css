@@ -57,14 +57,19 @@ body {
 
 .menu {
     height: 112px;
-    width: 1365px;
+    /* width: max-content; */
     display: flex;
     justify-content: space-evenly;
     align-content: center;
     padding-top: 24px;
+    padding-left: 10%;
+    padding-right: 10%;
     margin: -80px auto 0 auto;
     background-color: #FFFFFF;
     box-shadow: 0 4px 6px 0 rgba(0, 0, 0, 0.18);
+    display: grid;
+    grid-auto-flow: column;
+    grid-column-gap: 10px
 }
 
 .Select-control {
