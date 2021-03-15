@@ -93,7 +93,7 @@ app.layout = html.Div(
                                 {"label": CityGroup, "value": CityGroup}
                                 for CityGroup in range(1,49)
                             ],
-                            value= "22",
+                            value= None,
                             clearable=True,
                             searchable=True,
                             className="dropdown",
