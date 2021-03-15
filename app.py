@@ -11,7 +11,7 @@ from dash_table.Format import Format, Group
 external_stylesheets = ['assets/style.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
-app.title = "CO2 Rankings, C the full image!"
+app.title = "CO2 Rankings"
 
 df = pd.read_csv("data/LiveData.csv")
 df.sort_values("Year", inplace=True)
@@ -197,7 +197,6 @@ def filter_table(country,city, group, year):
                 elif year is None:
                     filtered_df = df[(df['City']== str(city)) & (df['Group']== int(group))]
                     return filtered_df.to_dict('rows')      
-
         if country is not None:
             if city is None:
                 if year is not None:
